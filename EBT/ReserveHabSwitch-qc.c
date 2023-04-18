@@ -11,7 +11,7 @@
     among newborn offspring is related to selection differential and the
     heritability.
  
- Last modification: AMdR - Apr 15, 2023
+ Last modification: AMdR - Apr 18, 2023
  ***/
 #include  "escbox.h"
 
@@ -34,6 +34,9 @@
 #define ADULTWS                   (env[5])
 #define ADULTFEC                  (env[6])
 #define ADULTFECWS                (env[7])
+
+#define JUVHARVEST                (env[8])
+#define ADUHARVEST                (env[9])
 
 #define lnsurvival                (0)
 #define age                       (i_state( 0))
@@ -104,6 +107,8 @@ static double *                   subcohortfrac;
 static double                     LogMinSurvival;
 static int                        ReserveEstablished;
 static double                     InitialSmoltSize;
+static double                     LastResetTime;
+static double                     JuvHarvestRate, AduHarvestRate;
 
 
 /*
@@ -282,6 +287,9 @@ void    SetBpointNo(double *env, population *pop, int *bpoint_no)
   bpoint_no[CONS] = (1 + ReserveEstablished) * SubCohorts;
 
   ADULTS = ADULTWS = ADULTFEC = ADULTFECWS = 0.0;
+  JUVHARVEST = ADUHARVEST = 0.0;
+
+  LastResetTime = time;
 
   return;
 }
@@ -320,13 +328,18 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
   register int i;
   double       juveniles1 = 0.0, juveniles2 = 0.0, juveniles3 = 0.0, fracAdultHab;
   double       adults2 = 0.0, adults3 = 0.0, adultws2 = 0.0, adultws3 = 0.0;
+  double       juvharvmort, aduharvmort;
   double       timeinseason;
+
+  memset(envgrad, 0, ENVIRON_DIM * sizeof(double));
 
   // The goal is to keep the survival throughout a season the same, irrespective of the value of
   // FISHINGCLOSED that represent the FRACTION of the season that fishing in the fished area is
   // prohibited. An entire season hence consists of a cycle of a period during which fishing is
   // prohibited (coming first) and a period that fishing is allowed
   timeinseason     = fmod(time, SEASON);
+  juvharvmort      = ETSJ / (1.0 - FISHINGCLOSED);
+  aduharvmort      = ETSA / (1.0 - FISHINGCLOSED);
 
   // If there is no part of the season during which fishing is prohibited (FISHINGCLOSED == 0) the probability to 
   // escape fishing mortality throughout the entire season would equal exp(- f0 * S) where f0 is the 
@@ -362,9 +375,15 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
               if ((!iszero(1.0 - FISHINGCLOSED)) && (timeinseason > (FISHINGCLOSED * SEASON)))
                 {
                   if (ismature(i))
-                    popgrad[CONS][i][number] = ETA2 + ETSA / (1.0 - FISHINGCLOSED);
+                    {
+                      popgrad[CONS][i][number] = ETA2 + aduharvmort;
+                      envgrad[9] += aduharvmort * pop[CONS][i][size] * popIDcard[CONS][i][IDnumber];
+                    }
                   else
-                    popgrad[CONS][i][number] = ETA2 + ETSJ / (1.0 - FISHINGCLOSED);
+                    {
+                      popgrad[CONS][i][number] = ETA2 + juvharvmort;
+                      envgrad[8] += juvharvmort * pop[CONS][i][size] * popIDcard[CONS][i][IDnumber];
+                    }
                 }
               else
                 {
@@ -633,6 +652,9 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
         }
     }
 
+  JuvHarvestRate = JUVHARVEST / (time - LastResetTime);
+  AduHarvestRate = ADUHARVEST / (time - LastResetTime);
+
   return;
 }
 
@@ -671,6 +693,9 @@ void    DefineOutput(double *env, population *pop, double *output)
  * [19]    21: Average smolt size in the population
  * [20]    22: Total population birth rate
  * [21]    23: Number of cohorts
+ * [22]    24: Biomass yield per unit time of juvenile harvesting
+ * [23]    25: Biomass yield per unit time of adult harvesting
+ * [24]    26: Biomass yield per unit time of total harvesting
  */
 
 {
@@ -741,6 +766,10 @@ void    DefineOutput(double *env, population *pop, double *output)
   output[outnr++] = sumsizesmolt / (juveniles1 + juveniles2 + juveniles3 + adults2 + adults3);
   output[outnr++] = BETA * Q * (F2 * adults2 + F3 * adults3);
   output[outnr++] = cohort_no[CONS];
+
+  output[outnr++] = JuvHarvestRate;
+  output[outnr++] = AduHarvestRate;
+  output[outnr++] = JuvHarvestRate + AduHarvestRate;
 
   return;
 }
