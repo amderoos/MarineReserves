@@ -11,7 +11,7 @@
     among newborn offspring is related to selection differential and the
     heritability.
  
- Last modification: AMdR - Apr 18, 2023
+ Last modification: AMdR - Apr 26, 2023
  ***/
 #include  "escbox.h"
 
@@ -108,7 +108,6 @@ static double                     LogMinSurvival;
 static int                        ReserveEstablished;
 static double                     InitialSmoltSize;
 static double                     LastResetTime;
-static double                     JuvHarvestRate, AduHarvestRate;
 
 
 /*
@@ -287,9 +286,6 @@ void    SetBpointNo(double *env, population *pop, int *bpoint_no)
   bpoint_no[CONS] = (1 + ReserveEstablished) * SubCohorts;
 
   ADULTS = ADULTWS = ADULTFEC = ADULTFECWS = 0.0;
-  JUVHARVEST = ADUHARVEST = 0.0;
-
-  LastResetTime = time;
 
   return;
 }
@@ -652,9 +648,6 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
         }
     }
 
-  JuvHarvestRate = JUVHARVEST / (time - LastResetTime);
-  AduHarvestRate = ADUHARVEST / (time - LastResetTime);
-
   return;
 }
 
@@ -699,9 +692,10 @@ void    DefineOutput(double *env, population *pop, double *output)
  */
 
 {
-  register int i, outnr = 0;
-  double       juveniles1 = 0.0, juveniles2 = 0.0, juveniles3 = 0.0, adults2 = 0.0, adults3 = 0.0, sumsizesmolt = 0.0;
-  double       juveniles1bio = 0.0, juveniles2bio = 0.0, juveniles3bio = 0.0, adults2bio = 0.0, adults3bio = 0.0;
+  register int                    i, outnr = 0;
+  static int                      first = 1;
+  double                          juveniles1 = 0.0, juveniles2 = 0.0, juveniles3 = 0.0, adults2 = 0.0, adults3 = 0.0, sumsizesmolt = 0.0;
+  double                          juveniles1bio = 0.0, juveniles2bio = 0.0, juveniles3bio = 0.0, adults2bio = 0.0, adults3bio = 0.0;
 
   for (i = 0; i < cohort_no[CONS]; i++)
     {
@@ -767,9 +761,22 @@ void    DefineOutput(double *env, population *pop, double *output)
   output[outnr++] = BETA * Q * (F2 * adults2 + F3 * adults3);
   output[outnr++] = cohort_no[CONS];
 
-  output[outnr++] = JuvHarvestRate;
-  output[outnr++] = AduHarvestRate;
-  output[outnr++] = JuvHarvestRate + AduHarvestRate;
+  if (first)
+    {
+      output[outnr++] = ETSJ * juveniles2bio;
+      output[outnr++] = ETSA * adults2bio;
+      output[outnr++] = ETSJ * juveniles2bio + ETSA * adults2bio;
+    }
+  else
+    {
+      output[outnr++] = JUVHARVEST / (time - LastResetTime);
+      output[outnr++] = ADUHARVEST / (time - LastResetTime);
+      output[outnr++] = (JUVHARVEST + ADUHARVEST) / (time - LastResetTime);
+    }
+  first         = 0;
+  LastResetTime = time;
+  JUVHARVEST    = 0.0;
+  ADUHARVEST    = 0.0;
 
   return;
 }

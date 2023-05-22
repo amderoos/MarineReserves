@@ -1,6 +1,6 @@
 basedir <- "~/Projects/MarineReserves/"
 datadir <- paste0(basedir, "Figures/EBToutput/")
-fname <- paste0(basedir, "Figures/maintextfigure2.pdf")
+fname <- paste0(basedir, "Figures/appendixFigS1.pdf")
 setwd(basedir)
 
 ToPdf <- T
@@ -36,7 +36,7 @@ layout(matrix(1:8, nrow = 4, ncol = 2), heights = rep(c(1, 0.7), 4))
 
 xliml <- c(0, 300)
 xlimr <- c(0, 7000)
-ylimb <- c(-0.04, 1.2)
+ylimb <- c(-0.02, 0.6)
 ylims <- c(0.18, 0.45)
 
 cexlab <- 2.0
@@ -56,14 +56,15 @@ plot(NULL, NULL, xlim = xliml, ylim = ylimb,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h1biocol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2biocol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3biocol], lwd = lwd, col = "#D55E00")
+
+lines(dt[,tcol], dt[,res1col], lwd = lwd, col = "black")
+lines(dt[,tcol], dt[,res2col], lwd = lwd, col = "#0072B2")
+lines(dt[,tcol], dt[,res3col], lwd = lwd, col = "#D55E00")
 
 axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.2 + (0:3) * 0.4, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:3) * 0.4, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
-mtext("Biomass", 2, cex = cexlab, line = 6)
+axis(2, at = 0.1 + (0:3) * 0.2, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
+axis(2, at = (0:3) * 0.2, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Resource\ndensity", 2, cex = cexlab, line = 4.5)
 mtext("No evolution", 3, cex = cexttl, line = 1.0)
 text(xliml[2], ylimb[2], "A", cex = 4.0, xpd = T, adj = c(0.5, 0))
 
@@ -72,6 +73,7 @@ plot(NULL, NULL, xlim = xliml, ylim = ylims,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
+
 lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
 
 axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
@@ -87,14 +89,15 @@ plot(NULL, NULL, xlim = xliml, ylim = ylimb,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h1biocol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2biocol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3biocol], lwd = lwd, col = "#D55E00")
+
+lines(dt[,tcol], dt[,res1col], lwd = lwd, col = "black")
+lines(dt[,tcol], dt[,res2col], lwd = lwd, col = "#0072B2")
+lines(dt[,tcol], dt[,res3col], lwd = lwd, col = "#D55E00")
 
 axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.2 + (0:3) * 0.4, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:3) * 0.4, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
-mtext("Biomass", 2, cex = cexlab, line = 6)
+axis(2, at = 0.1 + (0:3) * 0.2, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
+axis(2, at = (0:3) * 0.2, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Resource\ndensity", 2, cex = cexlab, line = 4.5)
 text(xliml[2], ylimb[2], "C", cex = 4.0, xpd = T, adj = c(0.5, 0))
 
 par(mar = c(5.0, 10, 0, 2))
@@ -102,6 +105,7 @@ plot(NULL, NULL, xlim = xliml, ylim = ylims,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
+
 lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
 
 axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
@@ -121,13 +125,14 @@ plot(NULL, NULL, xlim = xlimr, ylim = ylimb,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h1biocol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2biocol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3biocol], lwd = lwd, col = "#D55E00")
+
+lines(dt[,tcol], dt[,res1col], lwd = lwd, col = "black")
+lines(dt[,tcol], dt[,res2col], lwd = lwd, col = "#0072B2")
+lines(dt[,tcol], dt[,res3col], lwd = lwd, col = "#D55E00")
 
 axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.2 + (0:3) * 0.4, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:3) * 0.4, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+axis(2, at = 0.1 + (0:3) * 0.2, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
+axis(2, at = (0:3) * 0.2, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
 mtext("With evolution", 3, cex = cexttl, line = 1.0)
 text(xlimr[2], ylimb[2], "B", cex = 4.0, xpd = T, adj = c(0.5, 0))
 mtext("10% protected", 4, cex = cexttl, line = 5, at = 0.3)
@@ -140,6 +145,7 @@ plot(NULL, NULL, xlim = xlimr, ylim = ylims,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
+
 lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
 
 axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
@@ -157,13 +163,14 @@ plot(NULL, NULL, xlim = xlimr, ylim = ylimb,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h1biocol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2biocol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3biocol], lwd = lwd, col = "#D55E00")
+
+lines(dt[,tcol], dt[,res1col], lwd = lwd, col = "black")
+lines(dt[,tcol], dt[,res2col], lwd = lwd, col = "#0072B2")
+lines(dt[,tcol], dt[,res3col], lwd = lwd, col = "#D55E00")
 
 axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.2 + (0:3) * 0.4, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:3) * 0.4, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+axis(2, at = 0.1 + (0:3) * 0.2, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
+axis(2, at = (0:3) * 0.2, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
 text(xlimr[2], ylimb[2], "D", cex = 4.0, xpd = T, adj = c(0.5, 0))
 mtext("30% protected", 4, cex = cexttl, line = 5, at = 0.3)
 
@@ -172,6 +179,7 @@ plot(NULL, NULL, xlim = xlimr, ylim = ylims,
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
      xaxt = "n", yaxt = "n", bty = "l")
 polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
+
 lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
 
 axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)

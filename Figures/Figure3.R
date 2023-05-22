@@ -1,5 +1,9 @@
-datadir <- "~/Projects/MarineReserves/Paper/EBToutput/"
-modeldir <- "~/Projects/MarineReserves/Equi/"
+basedir <- "~/Projects/MarineReserves/"
+datadir <- paste0(basedir, "Figures/EBToutput/")
+modeldir <- paste0(basedir, "Equi/")
+fname <- paste0(basedir, "Figures/maintextfigure3.pdf")
+setwd(basedir)
+
 ToPdf <- T
 EBT_PSPM_cmp <- F
 
@@ -55,8 +59,6 @@ DefaultPars <- c(Rho1 = 0.5, Rho2 =    0.5, Delta = 1.0,
                  Eta1 = 1.0, Eta2 =    0.8, Eta3  = 0.8, 
                  ETSJ = 1.5, ETSA =    1.5, WS    = 0.3735478389, 
                  Q    = 1.0, Beta = 2000.0, SR    = 0.0)
-
-fname <- "Figure3.pdf"
 
 if (ToPdf) pdf(file = fname, width = (44.0 / 2.54), height = 10.0)
 
@@ -131,7 +133,7 @@ if (EBT_PSPM_cmp) {
   lines(EBTdwnM[,EBTbifparcol],     EBTdwnM[,EBTh1biocol],     lwd = 3 * lwd, col = "cyan1")
 }
 
-lines(dt[ stable,PSPMbifparcol], dt[ stable,PSPMh1biocol], lwd = lwd, col = "black")
+lines(dt[ stable,PSPMbifparcol], dt[ stable,PSPMh1biocol], lwd = 2 * lwd, col = "black")
 lines(dt[!stable,PSPMbifparcol], dt[!stable,PSPMh1biocol], lwd = lwd, col = "black", lty = 2)
 lines(EBTupM[,EBTbifparcol], EBTupM[,EBTh1biocol], lwd = lwd, col = "black")
 
@@ -147,8 +149,8 @@ axis(2, at = (0:3) * 0.1, label = c("0.0", "0.1", "0.2", "0.3"),
 mtext("Biomass\nin growth habitat", 2, cex = cexlab, line = 4.8)
 mtext("Marine reserve size", 1, cex = cexlab, line = 4.5)
 
-lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh2juvbiocol] + dt[stable,PSPMh2adubiocol], lwd = lwd, col = "#0072B2")
-lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh3juvbiocol] + dt[stable,PSPMh3adubiocol], lwd = lwd, col = "#D55E00")
+lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh2juvbiocol] + dt[stable,PSPMh2adubiocol], lwd = 2 * lwd, col = "#0072B2")
+lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh3juvbiocol] + dt[stable,PSPMh3adubiocol], lwd = 2 * lwd, col = "#D55E00")
 
 lines(dt[!stable,PSPMbifparcol], dt[!stable,PSPMh2juvbiocol] + dt[!stable,PSPMh2adubiocol], lwd = lwd, lty = 2, col = "#0072B2")
 lines(dt[!stable,PSPMbifparcol], dt[!stable,PSPMh3juvbiocol] + dt[!stable,PSPMh3adubiocol], lwd = lwd, lty = 2, col = "#D55E00")
@@ -210,7 +212,7 @@ if (EBT_PSPM_cmp) {
   lines(EBTdwnM[,EBTbifparcol],     EBTdwnM[,EBTh1biocol],     lwd = 3 * lwd, col = "cyan1")
 }
 
-lines(dt[ stable,PSPMbifparcol], dt[ stable,PSPMh1biocol], lwd = lwd, col = "black")
+lines(dt[ stable,PSPMbifparcol], dt[ stable,PSPMh1biocol], lwd = 2 * lwd, col = "black")
 lines(dt[!stable,PSPMbifparcol], dt[!stable,PSPMh1biocol], lwd = lwd, col = "black", lty = 2)
 lines(EBTupM[,EBTbifparcol], EBTupM[,EBTh1biocol], lwd = lwd, col = "black")
 
@@ -234,19 +236,17 @@ axis(2, at = (0:3) * 0.1, label = F,
      cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
 mtext("Body size at shift", 1, cex = cexlab, line = 4.5)
 
-lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh2juvbiocol] + dt[stable,PSPMh2adubiocol], lwd = lwd, col = "#0072B2")
-lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh3juvbiocol] + dt[stable,PSPMh3adubiocol], lwd = lwd, col = "#D55E00")
+lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh2juvbiocol] + dt[stable,PSPMh2adubiocol], lwd = 2 * lwd, col = "#0072B2")
+# lines(dt[stable,PSPMbifparcol], dt[stable,PSPMh3juvbiocol] + dt[stable,PSPMh3adubiocol], lwd = 2 * lwd, col = "#D55E00")
 
 lines(dt[!stable,PSPMbifparcol], dt[!stable,PSPMh2juvbiocol] + dt[!stable,PSPMh2adubiocol], lwd = lwd, lty = 2, col = "#0072B2")
-lines(dt[!stable,PSPMbifparcol], dt[!stable,PSPMh3juvbiocol] + dt[!stable,PSPMh3adubiocol], lwd = lwd, lty = 2, col = "#D55E00")
+# lines(dt[!stable,PSPMbifparcol], dt[!stable,PSPMh3juvbiocol] + dt[!stable,PSPMh3adubiocol], lwd = lwd, lty = 2, col = "#D55E00")
 
 lines(EBTupM[,EBTbifparcol], EBTupM[,EBTh2biocol], lwd = lwd, col = "#0072B2")
-lines(EBTupM[,EBTbifparcol], EBTupM[,EBTh3biocol], lwd = lwd, col = "#D55E00")
+# lines(EBTupM[,EBTbifparcol], EBTupM[,EBTh3biocol], lwd = lwd, col = "#D55E00")
 
 points(dtbp[,PSPMbifparcol], dtbp[,PSPMh2juvbiocol] + dtbp[,PSPMh2adubiocol], pch = 19, col = "#DD0000", cex = cexpnt)
 # text(dtbp[,PSPMbifparcol], dtbp[,PSPMh2juvbiocol] + dtbp[,PSPMh2adubiocol], "ESS", cex = cexbt, adj = c(1.3, 0.45))
-
-legend("topright", c("Outside reserve", "Inside reserve"), col = c("#0072B2", "#D55E00"), lwd = lwd, cex = cexleg)
 
 ########## Panel C
 
@@ -306,9 +306,9 @@ indx1 <- which.min(abs(dt[,PSPMbifparcol] - dtbp[1,PSPMbifparcol]))
 indx2 <- which.min(abs(dt[,PSPMbifparcol] - dtbp[3,PSPMbifparcol]))
 indx3 <- max((indx2:nrow(dt))[dt[(indx2:nrow(dt)),PSPMbifparcol] < min(EBTupM[,EBTbifparcol])])
   
-lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh1biocol], lwd = lwd, col = "black")
+lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh1biocol], lwd = 2 * lwd, col = "black")
 lines(dt[(indx1:indx2),PSPMbifparcol], dt[(indx1:indx2),PSPMh1biocol], lwd = lwd, lty = 3, col = "black")
-lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh1biocol], lwd = lwd, col = "black")
+lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh1biocol], lwd = 2 * lwd, col = "black")
 lines(dt[(indx3:nrow(dt)),PSPMbifparcol], dt[(indx3:nrow(dt)),PSPMh1biocol], lwd = lwd, col = "black", lty = 2)
 
 lines(EBTupM[,EBTbifparcol], EBTupM[,EBTh1biocol], lwd = lwd, col = "black")
@@ -346,14 +346,14 @@ axis(2, at = (0:3) * 0.1, label = F,
      cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
 mtext("Body size at shift", 1, cex = cexlab, line = 4.5)
 
-lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh2juvbiocol] + dt[(1:indx1),PSPMh2adubiocol], lwd = lwd, col = "#0072B2")
+lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh2juvbiocol] + dt[(1:indx1),PSPMh2adubiocol], lwd = 2 * lwd, col = "#0072B2")
 lines(dt[(indx1:indx2),PSPMbifparcol], dt[(indx1:indx2),PSPMh2juvbiocol] + dt[(indx1:indx2),PSPMh2adubiocol], lwd = lwd, lty = 3, col = "#0072B2")
-lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh2juvbiocol] + dt[(indx2:indx3),PSPMh2adubiocol], lwd = lwd, col = "#0072B2")
+lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh2juvbiocol] + dt[(indx2:indx3),PSPMh2adubiocol], lwd = 2 * lwd, col = "#0072B2")
 lines(dt[(indx3:nrow(dt)),PSPMbifparcol], dt[(indx3:nrow(dt)),PSPMh2juvbiocol] + dt[(indx3:nrow(dt)),PSPMh2adubiocol], lwd = lwd, col = "#0072B2", lty = 2)
 
-lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh3juvbiocol] + dt[(1:indx1),PSPMh3adubiocol], lwd = lwd, col = "#D55E00")
+lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh3juvbiocol] + dt[(1:indx1),PSPMh3adubiocol], lwd = 2 * lwd, col = "#D55E00")
 lines(dt[(indx1:indx2),PSPMbifparcol], dt[(indx1:indx2),PSPMh3juvbiocol] + dt[(indx1:indx2),PSPMh3adubiocol], lwd = lwd, lty = 3, col = "#D55E00")
-lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh3juvbiocol] + dt[(indx2:indx3),PSPMh3adubiocol], lwd = lwd, col = "#D55E00")
+lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh3juvbiocol] + dt[(indx2:indx3),PSPMh3adubiocol], lwd = 2 * lwd, col = "#D55E00")
 lines(dt[(indx3:nrow(dt)),PSPMbifparcol], dt[(indx3:nrow(dt)),PSPMh3juvbiocol] + dt[(indx3:nrow(dt)),PSPMh3adubiocol], lwd = lwd, col = "#D55E00", lty = 2)
 
 lines(EBTupM[,EBTbifparcol], EBTupM[,EBTh2biocol], lwd = lwd, col = "#0072B2")
@@ -366,6 +366,8 @@ points(dtbp[3,PSPMbifparcol], dtbp[3,PSPMh2juvbiocol] + dtbp[3,PSPMh2adubiocol],
 # points(dtbp[2,PSPMbifparcol], dtbp[2,PSPMh3juvbiocol] + dtbp[2,PSPMh3adubiocol], pch = 19, col = "#DD0000", cex = cexpnt)
 points(dtbp[1,PSPMbifparcol],dtbp[1,PSPMh3juvbiocol] + dtbp[1,PSPMh3adubiocol], pch = 19, col = "#009E73", cex = cexpnt)
 points(dtbp[3,PSPMbifparcol], dtbp[3,PSPMh3juvbiocol] + dtbp[3,PSPMh3adubiocol], pch = 19, col = "#009E73", cex = cexpnt)
+
+legend("topright", c("Harvested area", "Marine reserve"), col = c("#0072B2", "#D55E00"), lwd = lwd, cex = cexleg)
 
 ########## Panel D
 
@@ -426,9 +428,9 @@ indx1 <- which.min(abs(dt[,PSPMbifparcol] - dtbp[1,PSPMbifparcol]))
 indx2 <- which.min(abs(dt[,PSPMbifparcol] - dtbp[3,PSPMbifparcol]))
 indx3 <- max((indx2:nrow(dt))[dt[(indx2:nrow(dt)),PSPMbifparcol] < min(EBTdwnM[,EBTbifparcol])])
 
-lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh1biocol], lwd = lwd, col = "black")
+lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh1biocol], lwd = 2 * lwd, col = "black")
 lines(dt[(indx1:indx2),PSPMbifparcol], dt[(indx1:indx2),PSPMh1biocol], lwd = lwd, lty = 3, col = "black")
-lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh1biocol], lwd = lwd, col = "black")
+lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh1biocol], lwd = 2 * lwd, col = "black")
 lines(dt[(indx3:nrow(dt)),PSPMbifparcol], dt[(indx3:nrow(dt)),PSPMh1biocol], lwd = lwd, col = "black", lty = 2)
 
 lines(EBTdwnM[,EBTbifparcol], EBTdwnM[,EBTh1biocol], lwd = lwd, col = "black")
@@ -478,14 +480,14 @@ axis(2, at = (0:3) * 0.1, label = F,
      cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
 mtext("Body size at shift", 1, cex = cexlab, line = 4.5)
 
-lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh2juvbiocol] + dt[(1:indx1),PSPMh2adubiocol], lwd = lwd, col = "#0072B2")
+lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh2juvbiocol] + dt[(1:indx1),PSPMh2adubiocol], lwd = 2 * lwd, col = "#0072B2")
 lines(dt[(indx1:indx2),PSPMbifparcol], dt[(indx1:indx2),PSPMh2juvbiocol] + dt[(indx1:indx2),PSPMh2adubiocol], lwd = lwd, lty = 3, col = "#0072B2")
-lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh2juvbiocol] + dt[(indx2:indx3),PSPMh2adubiocol], lwd = lwd, col = "#0072B2")
+lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh2juvbiocol] + dt[(indx2:indx3),PSPMh2adubiocol], lwd = 2 * lwd, col = "#0072B2")
 lines(dt[(indx3:nrow(dt)),PSPMbifparcol], dt[(indx3:nrow(dt)),PSPMh2juvbiocol] + dt[(indx3:nrow(dt)),PSPMh2adubiocol], lwd = lwd, col = "#0072B2", lty = 2)
 
-lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh3juvbiocol] + dt[(1:indx1),PSPMh3adubiocol], lwd = lwd, col = "#D55E00")
+lines(dt[(1:indx1),PSPMbifparcol], dt[(1:indx1),PSPMh3juvbiocol] + dt[(1:indx1),PSPMh3adubiocol], lwd = 2 * lwd, col = "#D55E00")
 lines(dt[(indx1:indx2),PSPMbifparcol], dt[(indx1:indx2),PSPMh3juvbiocol] + dt[(indx1:indx2),PSPMh3adubiocol], lwd = lwd, lty = 3, col = "#D55E00")
-lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh3juvbiocol] + dt[(indx2:indx3),PSPMh3adubiocol], lwd = lwd, col = "#D55E00")
+lines(dt[(indx2:indx3),PSPMbifparcol], dt[(indx2:indx3),PSPMh3juvbiocol] + dt[(indx2:indx3),PSPMh3adubiocol], lwd = 2 * lwd, col = "#D55E00")
 lines(dt[(indx3:nrow(dt)),PSPMbifparcol], dt[(indx3:nrow(dt)),PSPMh3juvbiocol] + dt[(indx3:nrow(dt)),PSPMh3adubiocol], lwd = lwd, col = "#D55E00", lty = 2)
 
 lines(EBTdwnM[,EBTbifparcol], EBTdwnM[,EBTh2biocol], lwd = lwd, col = "#0072B2")
