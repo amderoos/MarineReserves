@@ -40,6 +40,9 @@ In addition to these model files, this repository also contains files with the p
 - **Figures/Figure4.R** \
   R script to produce Figure 4 in the main text of the manuscript
 
+- **Figures/Figure5.R** \
+  R script to produce Figure 5 in the main text of the manuscript
+
 - **Figures/FigureS1.R** \
   R script to produce Figure 1 in the supplementary information of the manuscript
 
@@ -48,6 +51,18 @@ In addition to these model files, this repository also contains files with the p
 
 - **Figures/FigureS3.R** \
   R script to produce Figure 3 in the supplementary information of the manuscript
+
+- **Figures/FigureS4.R** \
+  R script to produce Figure 4 in the supplementary information of the manuscript
+
+- **Figures/FigureS5.R** \
+  R script to produce Figure 5 in the supplementary information of the manuscript
+
+- **Figures/FigureS6.R** \
+  R script to produce Figure 6 in the supplementary information of the manuscript
+
+- **Figures/FigureS7.R** \
+  R script to produce Figure 7 in the supplementary information of the manuscript
 
 - **Figures/maintextfigure2.pdf** \
   PDF file of Figure 2 in the main text of the manuscript
@@ -58,6 +73,9 @@ In addition to these model files, this repository also contains files with the p
 - **Figures/maintextfigure4.pdf** \
   PDF file of Figure 4 in the main text of the manuscript
 
+- **Figures/maintextfigure5.pdf** \
+  PDF file of Figure 5 in the main text of the manuscript
+
 - **Figures/appendixFigS1.pdf** \
   PDF file of Figure 1 in the supplementary information of the manuscript
 
@@ -66,6 +84,18 @@ In addition to these model files, this repository also contains files with the p
 
 - **Figures/appendixFigS3.pdf** \
   PDF file of Figure 3 in the supplementary information of the manuscript
+
+- **Figures/appendixFigS4.pdf** \
+  PDF file of Figure 4 in the supplementary information of the manuscript
+
+- **Figures/appendixFigS5.pdf** \
+  PDF file of Figure 5 in the supplementary information of the manuscript
+
+- **Figures/appendixFigS6.pdf** \
+  PDF file of Figure 6 in the supplementary information of the manuscript
+
+- **Figures/appendixFigS7.pdf** \
+  PDF file of Figure 7 in the supplementary information of the manuscript
 
 - **Figures/EBToutput/** \
   This directory contains the files with the values of the model parameters and numerical settings (files with `.cvf` extension) and the initial state of the model (files with `.isf` extension) that are used by the EBT programs `ReserveHabSwitch-qc`, for computing results in Figure 2 and 4 in the main text and all figures in the supplementary information, and by `ReserveHabSwitch-qc_bif`, for computing the bifurcation results (minimum and maximum values during cylces) in Figure 3. Because some of these model simulations take quite a long time also the data files are included (files with `.out` extension) that are generated during these model simulations and that are used for producing the figures included in the manuscript.
