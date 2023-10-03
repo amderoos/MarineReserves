@@ -1,184 +1,258 @@
 basedir <- "~/Projects/MarineReserves/"
-datadir <- paste0(basedir, "Figures/EBToutput/")
-fname <- paste0(basedir, "Figures/appendixFigS2.pdf")
+figdir  <- paste0(basedir, "Figures/")
+modeldir <- paste0(basedir, "Equi/")
+datadir <- paste0(figdir, "EBToutput/")
+fname <- paste0(figdir, "appendixFigS2.pdf")
 setwd(basedir)
 
 ToPdf <- T
 
-tcol         <-  1
-res1col      <-  2
-res2col      <-  3
-res3col      <-  4
-totnumcol    <-  5
-totbiocol    <-  6
-h1numcol     <-  7
-h1biocol     <-  8
-h2numcol     <-  9
-h2biocol     <- 10
-h3numcol     <- 11
-h3biocol     <- 12
-h2juvnumcol  <- 13
-h2juvbiocol  <- 14
-h3juvnumcol  <- 15
-h3juvbiocol  <- 16
-h2adunumcol  <- 17
-h2adubiocol  <- 18
-h3adunumcol  <- 19
-h3adubiocol  <- 20
-smoltsizecol <- 21   
-totreprocol  <- 22
-numcohcol    <- 23
-bifparcol    <- 24
+EBTtcol         <-  1
+EBTres1col      <-  2
+EBTres2col      <-  3
+EBTres3col      <-  4
+EBTtotnumcol    <-  5
+EBTtotbiocol    <-  6
+EBTh1numcol     <-  7
+EBTh1biocol     <-  8
+EBTh2numcol     <-  9
+EBTh2biocol     <- 10
+EBTh3numcol     <- 11
+EBTh3biocol     <- 12
+EBTh2juvnumcol  <- 13
+EBTh2juvbiocol  <- 14
+EBTh3juvnumcol  <- 15
+EBTh3juvbiocol  <- 16
+EBTh2adunumcol  <- 17
+EBTh2adubiocol  <- 18
+EBTh3adunumcol  <- 19
+EBTh3adubiocol  <- 20
+EBTsmoltsizecol <- 21   
+EBTtotreprocol  <- 22
+EBTnumcohcol    <- 23
+EBTbifparcol    <- 31
+EBTperiodcol    <- 32
 
-if (ToPdf) pdf(file = fname, width = (44.0 / 2.54), height = 10.0)
+if (ToPdf) pdf(file = fname, width = (44.0 / 2.54), height = 11.0)
 
-layout(matrix(1:8, nrow = 4, ncol = 2), heights = rep(c(1, 0.7), 4))
+library(colorspace)
 
-xliml <- c(0, 300)
-xlimr <- c(0, 7000)
-ylimb <- c(-0.002, 0.08)
-ylims <- c(0.18, 0.45)
+xlim <- c(0.5, 2.0)
+ylim <- c(0, 2.0)
 
 cexlab <- 2.0
 cexaxs <- 2.0
-cexttl <- 2.5
-cexleg <- 1.8
+cexleg <- 1.2
+cexttl <- 2.2
+cexpnt <- 2.0
+cexbt  <- 1.6
+ttlline <- 0.7
+xlabline <- 4.0
+ylabline <- 4.5
+
+tmart <- 8
+tmar  <- 3
+lmar  <- 7
+bmar  <- 6
+rmar  <- 2.5
 
 axislwd <- 1
+baselwd <- 3
+unstablelty <- 2
 
-par(tcl = 0.6, mgp = c(3, 0.8, 0))
+bmortvals <- seq(0.1, 2.5, 0.05)
+fmortvals <- seq(0.0, 2.5, 0.05)
+selectedcol <- EBTtotnumcol
 
-########## Panel A
-dt <- read.table(paste0(datadir, "Figure2A-GV01.out"))
+zlabs   <- (0:7) * 0.5
+zconts  <- seq(0, 2.0, by = 0.5)
+zclrs   <- seq(0, 2.0, by = 0.01)
+drawconts <- F
 
-par(mar = c(0, 10, 4.0, 2))
-plot(NULL, NULL, xlim = xliml, ylim = ylimb, 
-     xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h2adunumcol] + dt[,h3adunumcol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2adunumcol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3adunumcol], lwd = lwd, col = "#D55E00")
+zlim    <- range(zconts) 
+clrs <- hcl.colors(length(zclrs) - 1, "RdYlBu", rev = TRUE)
 
-axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.01 + (0:4) * 0.02, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:4) * 0.02, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
-mtext("Adult\nnumber", 2, cex = cexlab, line = 4.5)
-mtext("No evolution", 3, cex = cexttl, line = 1.0)
-text(xliml[2], ylimb[2], "A", cex = 4.0, xpd = T, adj = c(0.5, 0))
+layout(matrix(1:8, nrow = 2, ncol = 4, byrow = T), heights = c(1.13, 1), widths = c(1, 1, 1, 0.15))
 
-par(mar = c(3.5, 10, 0, 2))
-plot(NULL, NULL, xlim = xliml, ylim = ylims, 
+par(tcl = 0.6, mgp = c(3, 1, 0))
+
+################################################## TOP ROW ##############################
+
+SR00_ETSbif_Bmort_var <- matrix(NA, nrow=length(bmortvals), ncol = length(fmortvals))
+SR01_ETSbif_Bmort_var <- matrix(NA, nrow=length(bmortvals), ncol = length(fmortvals))
+SR03_ETSbif_Bmort_var <- matrix(NA, nrow=length(bmortvals), ncol = length(fmortvals))
+
+for (ii in (1:length(bmortvals))) {
+  fn <- paste0(sub('\\.', "", paste0(datadir, "Heatmaps-Eco/SR00-ETSbif-Bmort-", sprintf("%.2f", bmortvals[ii]))), ".var.out")
+  if (file.size(fn) > 0) {
+    dt <- read.table(fn)
+    SR00_ETSbif_Bmort_var[ii, (1:nrow(dt))] <- dt[, selectedcol]
+  }
+  
+  fn <- paste0(sub('\\.', "", paste0(datadir, "Heatmaps-Eco/SR01-ETSbif-Bmort-", sprintf("%.2f", bmortvals[ii]))), ".var.out")
+  if (file.size(fn) > 0) {
+    dt <- read.table(fn)
+    SR01_ETSbif_Bmort_var[ii, (1:nrow(dt))] <- dt[, selectedcol]
+  }
+  
+  fn <- paste0(sub('\\.', "", paste0(datadir, "Heatmaps-Eco/SR03-ETSbif-Bmort-", sprintf("%.2f", bmortvals[ii]))), ".var.out")
+  if (file.size(fn) > 0) {
+    dt <- read.table(fn)
+    SR03_ETSbif_Bmort_var[ii, (1:nrow(dt))] <- dt[, selectedcol]
+  }
+}
+
+par(mar = c(bmar, lmar, tmart, rmar))
+plot(NULL, NULL, xlim = xlim, ylim = ylim, 
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
+     xaxt = "n", yaxt = "n")
 
-axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = c(0.2, 0.3, 0.4), label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
-mtext("Body size\nat shift", 2, cex = cexlab, line = 4.5)
+.filled.contour(bmortvals, fmortvals, SR00_ETSbif_Bmort_var, levels = zclrs, col = clrs)
+if (drawconts) {
+  contour(bmortvals, fmortvals, SR00_ETSbif_Bmort_var, levels = zconts, lwd = 0.1, add = TRUE, drawlabels = F)
+  contour(bmortvals, fmortvals, SR00_ETSbif_Bmort_var, levels = zlabs, lwd = 1.5, add = TRUE, drawlabels = F)
+}
 
-########## Panel C
+axis(1, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
+axis(2, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Background mortality", 1, cex = cexlab, line = xlabline)
+mtext("Fishing mortality", 2, cex = cexlab, line = ylabline)
+mtext("No reserve", 3, cex = cexttl, line = ttlline)
 
-dt <- read.table(paste0(datadir, "Figure2B-GV01.out"))
-
-par(mar = c(0, 10, 2.5, 2))
-plot(NULL, NULL, xlim = xliml, ylim = ylimb, 
-     xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h2adunumcol] + dt[,h3adunumcol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2adunumcol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3adunumcol], lwd = lwd, col = "#D55E00")
-
-axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.01 + (0:4) * 0.02, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:4) * 0.02, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
-mtext("Adult\nnumber", 2, cex = cexlab, line = 4.5)
-text(xliml[2], ylimb[2], "C", cex = 4.0, xpd = T, adj = c(0.5, 0))
-
-par(mar = c(5.0, 10, 0, 2))
-plot(NULL, NULL, xlim = xliml, ylim = ylims, 
+par(mar = c(bmar, lmar, tmart, rmar))
+plot(NULL, NULL, xlim = xlim, ylim = ylim, 
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 50, 50, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
+     xaxt = "n", yaxt = "n")
 
-axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = c(0.2, 0.3, 0.4), label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
-mtext("Time", 1, cex = cexlab, line = 4.0)
-mtext("Body size\nat shift", 2, cex = cexlab, line = 4.5)
+.filled.contour(bmortvals, fmortvals, SR01_ETSbif_Bmort_var, levels = zclrs, col = clrs)
+if (drawconts) {
+  contour(bmortvals, fmortvals, SR01_ETSbif_Bmort_var, levels = zconts, lwd = 0.1, add = TRUE, drawlabels = F)
+  contour(bmortvals, fmortvals, SR01_ETSbif_Bmort_var, levels = zlabs, lwd = 1.5, add = TRUE, drawlabels = F)
+}
 
-########## Panel B
+axis(1, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
+axis(2, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Background mortality", 1, cex = cexlab, line = xlabline)
+mtext("Fishing mortality", 2, cex = cexlab, line = ylabline)
+mtext("10% protected", 3, cex = cexttl, line = ttlline)
 
-dt <- read.table(paste0(datadir, "Figure2C-GV01.out"))
-dt <- rbind(dt[1,], dt)
-dt[1,1] <- -300
-dt[,1]  <- dt[,1] + 300
+mtext("Coefficient of variation in total number of individuals", 3, cex = cexttl, line = 5.0)
 
-par(mar = c(0, 5, 4.0, 7))
-plot(NULL, NULL, xlim = xlimr, ylim = ylimb, 
-     xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h2adunumcol] + dt[,h3adunumcol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2adunumcol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3adunumcol], lwd = lwd, col = "#D55E00")
-
-axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.01 + (0:4) * 0.02, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:4) * 0.02, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
-mtext("With evolution", 3, cex = cexttl, line = 1.0)
-text(xlimr[2], ylimb[2], "B", cex = 4.0, xpd = T, adj = c(0.5, 0))
-mtext("10% protected", 4, cex = cexttl, line = 5, at = 0.3)
-
-legend(650, 1.025 * par("usr")[4], c("Total number", "Harvested area", "Marine reserve"), col = c("black", "#0072B2", "#D55E00"), lwd = lwd, cex = cexleg, horiz = T, bty = "n", adj = c(0, 0.2))
-polygon(c(700, 6750, 6750, 700), c(rep(1.0, 2), rep(0.875, 2)) * par("usr")[4], col = NA)
-
-par(mar = c(3.5, 5, 0, 7))
-plot(NULL, NULL, xlim = xlimr, ylim = ylims, 
+par(mar = c(bmar, lmar, tmart, rmar))
+plot(NULL, NULL, xlim = xlim, ylim = ylim, 
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
+     xaxt = "n", yaxt = "n")
 
-axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = c(0.2, 0.3, 0.4), label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
+.filled.contour(bmortvals, fmortvals, SR03_ETSbif_Bmort_var, levels = zclrs, col = clrs)
+if (drawconts) {
+  contour(bmortvals, fmortvals, SR03_ETSbif_Bmort_var, levels = zconts, lwd = 0.1, add = TRUE, drawlabels = F)
+  contour(bmortvals, fmortvals, SR03_ETSbif_Bmort_var, levels = zlabs, lwd = 1.5, add = TRUE, drawlabels = F)
+}
 
-########## Panel D
+axis(1, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
+axis(2, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Background mortality", 1, cex = cexlab, line = xlabline)
+mtext("Fishing mortality", 2, cex = cexlab, line = ylabline)
+mtext("30% protected", 3, cex = cexttl, line = ttlline)
 
-dt <- read.table(paste0(datadir, "Figure2D-GV01.out"))
-dt <- rbind(dt[1,], dt)
-dt[1,1] <- -300
-dt[,1]  <- dt[,1] + 300
+par(mar=c(bmar, 0, tmart, rmar), mgp = c(3, 0.3, 0))
+plot.new()
+plot.window(xlim = c(0, 1), ylim = zlim, xaxs = "i", yaxs = "i")
+rect(0, zclrs[-length(zclrs)], 1, zclrs[-1L], density = -1, col = clrs, lwd = 0, border = "transparent")
+rect(0, zconts[-length(zconts)], 1, zconts[-1L], col = NA, lwd = 0.1)
+rect(0, zlabs[-length(zlabs)], 1, zlabs[-1L], col = NA, lwd = 1.5)
+axis(4, at = zlabs, labels = T, cex.axis = 0.9 * cexaxs, las = 2, lwd = 0)
+mtext("CV", 3, cex = 1.1, adj = 0.5, line = 0.75)
 
-par(mar = c(0, 5, 2.5, 7))
-plot(NULL, NULL, xlim = xlimr, ylim = ylimb, 
-     xlab = "", ylab = "", xaxs = "i", yaxs = "i", 
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,h2adunumcol] + dt[,h3adunumcol], lwd = lwd, col = "black")
-lines(dt[,tcol], dt[,h2adunumcol], lwd = lwd, col = "#0072B2")
-lines(dt[,tcol], dt[,h3adunumcol], lwd = lwd, col = "#D55E00")
+################################################## BOTTOM ROW ##############################
 
-axis(1, label = F, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = 0.01 + (0:4) * 0.02, label = F, lwd = 0, lwd.ticks = axislwd, tcl = 0.4)
-axis(2, at = (0:4) * 0.02, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
-text(xlimr[2], ylimb[2], "D", cex = 4.0, xpd = T, adj = c(0.5, 0))
-mtext("30% protected", 4, cex = cexttl, line = 5, at = 0.3)
+bmortvals <- seq(0.5, 5.0, 0.1)
+fmortvals <- seq(-0.1, 2.5, 0.1)
 
-par(mar = c(5.0, 5, 0, 7))
-plot(NULL, NULL, xlim = xlimr, ylim = ylims, 
+SR00_ETSbif_Bmort_var <- matrix(NA, nrow=length(bmortvals), ncol = length(fmortvals))
+SR01_ETSbif_Bmort_var <- matrix(NA, nrow=length(bmortvals), ncol = length(fmortvals))
+SR03_ETSbif_Bmort_var <- matrix(NA, nrow=length(bmortvals), ncol = length(fmortvals))
+
+for (ii in (1:length(bmortvals))) {
+  fn <- paste0(sub('\\.', "", paste0(datadir, "Heatmaps-Evo/SR00-ETSbif-Bmort-", sprintf("%.1f", bmortvals[ii]))), ".var.out")
+  if (file.size(fn) > 0) {
+    dt <- read.table(fn)
+    SR00_ETSbif_Bmort_var[ii, (1:nrow(dt))] <- dt[, selectedcol]
+  }
+  
+  fn <- paste0(sub('\\.', "", paste0(datadir, "Heatmaps-Evo/SR01-ETSbif-Bmort-", sprintf("%.1f", bmortvals[ii]))), ".var.out")
+  if (file.size(fn) > 0) {
+    dt <- read.table(fn)
+    SR01_ETSbif_Bmort_var[ii, (1:nrow(dt))] <- dt[, selectedcol]
+  }
+  
+  fn <- paste0(sub('\\.', "", paste0(datadir, "Heatmaps-Evo/SR03-ETSbif-Bmort-", sprintf("%.1f", bmortvals[ii]))), ".var.out")
+  if (file.size(fn) > 0) {
+    dt <- read.table(fn)
+    SR03_ETSbif_Bmort_var[ii, (1:nrow(dt))] <- dt[, selectedcol]
+  }
+}
+
+par(tcl = 0.6, mgp = c(3, 1, 0))
+par(mar = c(bmar, lmar, tmar, rmar))
+plot(NULL, NULL, xlim = xlim, ylim = ylim, 
      xlab = "", ylab = "", xaxs = "i", yaxs = "i",
-     xaxt = "n", yaxt = "n", bty = "l")
-polygon(c(0, 500, 500, 0), par("usr")[c(3, 3, 4, 4)], col = "lightgrey")
-lines(dt[,tcol], dt[,smoltsizecol], lwd = lwd, col = "#009E73")
+     xaxt = "n", yaxt = "n")
 
-axis(1, label = T,                        cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
-axis(2, at = c(0.2, 0.3, 0.4), label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2, mgp = c(3, 0.4, 0))
-mtext("Time", 1, cex = cexlab, line = 4.0)
+.filled.contour(bmortvals, fmortvals, SR00_ETSbif_Bmort_var, levels = zclrs, col = clrs)
+if (drawconts) {
+  contour(bmortvals, fmortvals, SR00_ETSbif_Bmort_var, levels = zconts, lwd = 0.1, add = TRUE, drawlabels = F)
+  contour(bmortvals, fmortvals, SR00_ETSbif_Bmort_var, levels = zlabs, lwd = 1.5, add = TRUE, drawlabels = F)
+}
+
+axis(1, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
+axis(2, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Background mortality", 1, cex = cexlab, line = xlabline)
+mtext("Fishing mortality", 2, cex = cexlab, line = ylabline)
+
+par(mar = c(bmar, lmar, tmar, rmar))
+plot(NULL, NULL, xlim = xlim, ylim = ylim, 
+     xlab = "", ylab = "", xaxs = "i", yaxs = "i",
+     xaxt = "n", yaxt = "n")
+
+.filled.contour(bmortvals, fmortvals, SR01_ETSbif_Bmort_var, levels = zclrs, col = clrs)
+if (drawconts) {
+  contour(bmortvals, fmortvals, SR01_ETSbif_Bmort_var, levels = zconts, lwd = 0.1, add = TRUE, drawlabels = F)
+  contour(bmortvals, fmortvals, SR01_ETSbif_Bmort_var, levels = zlabs, lwd = 1.5, add = TRUE, drawlabels = F)
+}
+
+axis(1, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
+axis(2, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Background mortality", 1, cex = cexlab, line = xlabline)
+mtext("Fishing mortality", 2, cex = cexlab, line = ylabline)
+
+par(mar = c(bmar, lmar, tmar, rmar))
+plot(NULL, NULL, xlim = xlim, ylim = ylim, 
+     xlab = "", ylab = "", xaxs = "i", yaxs = "i",
+     xaxt = "n", yaxt = "n")
+
+.filled.contour(bmortvals, fmortvals, SR03_ETSbif_Bmort_var, levels = zclrs, col = clrs)
+if (drawconts) {
+  contour(bmortvals, fmortvals, SR03_ETSbif_Bmort_var, levels = zconts, lwd = 0.1, add = TRUE, drawlabels = F)
+  contour(bmortvals, fmortvals, SR03_ETSbif_Bmort_var, levels = zlabs, lwd = 1.5, add = TRUE, drawlabels = F)
+}
+
+axis(1, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd)
+axis(2, at = (0:5) * 0.5, label = T, cex.axis = cexaxs, lwd = 0, lwd.ticks = axislwd, las = 2)
+mtext("Background mortality", 1, cex = cexlab, line = xlabline)
+mtext("Fishing mortality", 2, cex = cexlab, line = ylabline)
+
+par(mar=c(bmar, 0, tmar, rmar), mgp = c(3, 0.3, 0))
+plot.new()
+plot.window(xlim = c(0, 1), ylim = zlim, xaxs = "i", yaxs = "i")
+rect(0, zclrs[-length(zclrs)], 1, zclrs[-1L], density = -1, col = clrs, lwd = 0, border = "transparent")
+rect(0, zconts[-length(zconts)], 1, zconts[-1L], col = NA, lwd = 0.1)
+rect(0, zlabs[-length(zlabs)], 1, zlabs[-1L], col = NA, lwd = 1.5)
+axis(4, at = zlabs, labels = T, cex.axis = 0.9 * cexaxs, las = 2, lwd = 0)
+mtext("CV", 3, cex = 1.1, adj = 0.5, line = 0.75)
 
 if (ToPdf) {
   dev.off()
   system(paste("open ", fname))
 }
+

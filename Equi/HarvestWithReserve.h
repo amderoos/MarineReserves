@@ -110,7 +110,7 @@ double parameter[PARAMETER_NR] =     {    0.5,    0.5,     1.0,    0.8,    1.5, 
 
 void SetBirthStates(int BirthStates[POPULATION_NR], double E[])
 {
-  BirthStates[0] = 2;
+  BirthStates[0] = (fabs(SIZERESERVE) > DYTOL) ? 2 : 1;
 
   return;
 }
@@ -235,15 +235,22 @@ void Fecundity(int lifestage[POPULATION_NR], double *istate[POPULATION_NR], doub
   fecundity[0][0] = 0.0;
   if (lifestage[0] == 2)
     {
-      if (BirthStateNr == 0)
+      if (fabs(SIZERESERVE) > DYTOL)
         {
-          fecundity[0][0] = (1 - SIZERESERVE) * BETA * Q * F2;
-          fecundity[0][1] = SIZERESERVE * BETA * Q * F2;
+          if (BirthStateNr == 0)
+            {
+              fecundity[0][0] = (1 - SIZERESERVE) * BETA * Q * F2;
+              fecundity[0][1] = SIZERESERVE * BETA * Q * F2;
+            }
+          else
+            {
+              fecundity[0][0] = (1 - SIZERESERVE) * BETA * Q * F3;
+              fecundity[0][1] = SIZERESERVE * BETA * Q * F3;
+            }
         }
       else
         {
-          fecundity[0][0] = (1 - SIZERESERVE) * BETA * Q * F3;
-          fecundity[0][1] = SIZERESERVE * BETA * Q * F3;
+          fecundity[0][0] = BETA * Q * F2;
         }
     }
 

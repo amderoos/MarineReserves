@@ -11,7 +11,7 @@
     among newborn offspring is related to selection differential and the
     heritability.
  
- Last modification: AMdR - Apr 26, 2023
+ Last modification: AMdR - Oct 02, 2023
  ***/
 #include  "escbox.h"
 
@@ -54,7 +54,7 @@
 
 #define ismature(n)               (lrint(popIDcard[CONS][n][IDmatured]) > 0)
 #define issmolted(n)              (lrint(popIDcard[CONS][n][IDsmolted]) > 0)
-#define isdead(n)                 ((pop[CONS][n][lnsurvival] - 1.0) > LogMinSurvival)
+#define isdead(n)                 (((pop[CONS][n][lnsurvival] - 1.0) > LogMinSurvival) || (popIDcard[CONS][n][IDnumber] < MIN_COHORT_SIZE))
 
 
 /*
@@ -70,25 +70,28 @@
 #define DELTA                     parameter[ 2]                                     // Scaled resource turn-over rate
 
 #define ETA1                      parameter[ 3]                                     // Scaled background mortality rate small consumers
-#define ETA2                      parameter[ 4]                                     // Scaled Background mortality rate large consumers outside reserve
-#define ETA3                      parameter[ 5]                                     // Scaled Background mortality rate large consumers in reserve
+#define ETA23                     parameter[ 4]                                     // Scaled background mortality rate large consumers inside & outside reserve
+#define ETA2                      parameter[ 5]                                     // Additional scaled background mortality rate large consumers outside reserve
+#define ETA3                      parameter[ 6]                                     // Additional scaled background mortality rate large consumers in reserve
 
-#define ETSJ                      parameter[ 6]                                     // Scaled fishing mortality rate of juveniles in habitat 2 (instant mortality of fishing if permanently open)
-#define ETSA                      parameter[ 7]                                     // Scaled fishing mortality rate of adults in habitat 2 (instant mortality of fishing if permanently open)
+#define ETS                       parameter[ 7]                                     // Scaled fishing mortality rate of juveniles & adults in habitat 2 (instant mortality of fishing if permanently open)
+#define ETSJ                      parameter[ 8]                                     // Additional scaled fishing mortality rate of juveniles in habitat 2 (instant mortality of fishing if permanently open)
+#define ETSA                      parameter[ 9]                                     // Additional scaled fishing mortality rate of adults in habitat 2 (instant mortality of fishing if permanently open)
 
-#define WS                        parameter[ 8]                                     // Default switch size (scaled)
-#define Q                         parameter[ 9]                                     // Attack rate ratio on resource 1 and 2
-#define BETA                      parameter[10]                                     // Scaled fecundity parameter
-#define SIZERESERVE               parameter[11]                                     // Fraction of large consumers in reserve
+#define WS                        parameter[10]                                     // Default switch size (scaled)
+#define Q                         parameter[11]                                     // Attack rate ratio on resource 1 and 2
+#define BETA                      parameter[12]                                     // Scaled fecundity parameter
+#define SIZERESERVE               parameter[13]                                     // Fraction of large consumers in reserve
 
-#define HERITABILITY              parameter[12]                                     // Heritability of trait value (0.3)
-#define GENETICVARIANCE           parameter[13]                                     // Half-width of the truncated normal distribution (0.25)
+#define HERITABILITY              parameter[14]                                     // Heritability of trait value (0.3)
+#define GENETICVARIANCE           parameter[15]                                     // Half-width of the truncated normal distribution (0.25)
 
-#define SEASON                    parameter[14]                                     // Duration of a season, i.e. one cycle of open and closed for fishing
-#define FISHINGCLOSED             parameter[15]                                     // FRACTION of the season during which the fishing area is closed for fishing
-#define TRESEST                   parameter[16]                                     // Time at which reserve is established
+#define SEASON                    parameter[16]                                     // Duration of a season, i.e. one cycle of open and closed for fishing
+#define FISHINGCLOSED             parameter[17]                                     // FRACTION of the season during which the fishing area is closed for fishing
+#define TRESEST                   parameter[18]                                     // Time at which reserve is established
 
 #define MIN_SURVIVAL              1.0E-8
+#define MIN_COHORT_SIZE           1.0E-9
 #define SUBCOHORTS                11                                                // Central one, 5 lower, 5 higher
 
 
@@ -126,16 +129,8 @@ void    UserInit(int argc, char **argv, double *env, population *pop)
 
   switch (argc)
     {
-      case 7:
-        GENETICVARIANCE = atof(argv[6]);
-      case 6:
-        HERITABILITY = atof(argv[5]);
-      case 5:
-        WS = atof(argv[4]);
-      case 4:
-        ETA2 = atof(argv[3]);
       case 3:
-        ETA1 = atof(argv[2]);
+        TRESEST = atof(argv[2]);
       default:
         break;
     }
@@ -173,10 +168,15 @@ void    UserInit(int argc, char **argv, double *env, population *pop)
         {
           popIDcard[CONS][i][IDsmolted] = 0.0;
         }
+
+            // remove dead cohorts
+      if (isdead(i)) pop[CONS][i][lnsurvival] = 0.0;
+
       sumtotnum    += popIDcard[CONS][i][IDnumber];
       sumsizesmolt += popIDcard[CONS][i][IDsmoltsize] * popIDcard[CONS][i][IDnumber];
     }
-
+  SievePop();
+  
   if (iszero(GENETICVARIANCE))
     {
       SubCohorts = 1;
@@ -285,7 +285,7 @@ void    SetBpointNo(double *env, population *pop, int *bpoint_no)
   // Create all the sub-cohorts as new boundary cohorts
   bpoint_no[CONS] = (1 + ReserveEstablished) * SubCohorts;
 
-  ADULTS = ADULTWS = ADULTFEC = ADULTFECWS = 0.0;
+  ADULTS = ADULTWS = ADULTFEC = ADULTFECWS = 1.0;
 
   return;
 }
@@ -322,7 +322,7 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
 
 {
   register int i;
-  double       juveniles1 = 0.0, juveniles2 = 0.0, juveniles3 = 0.0, fracAdultHab;
+  double       juveniles1 = 0.0, juveniles2 = 0.0, juveniles3 = 0.0, fracAdultHab, TotBirthRate;
   double       adults2 = 0.0, adults3 = 0.0, adultws2 = 0.0, adultws3 = 0.0;
   double       juvharvmort, aduharvmort;
   double       timeinseason;
@@ -334,12 +334,12 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
   // prohibited. An entire season hence consists of a cycle of a period during which fishing is
   // prohibited (coming first) and a period that fishing is allowed
   timeinseason     = fmod(time, SEASON);
-  juvharvmort      = ETSJ / (1.0 - FISHINGCLOSED);
-  aduharvmort      = ETSA / (1.0 - FISHINGCLOSED);
+  juvharvmort      = (ETS + ETSJ) / (1.0 - FISHINGCLOSED);
+  aduharvmort      = (ETS + ETSA) / (1.0 - FISHINGCLOSED);
 
   // If there is no part of the season during which fishing is prohibited (FISHINGCLOSED == 0) the probability to 
   // escape fishing mortality throughout the entire season would equal exp(- f0 * S) where f0 is the 
-  // instantaneous fishing mortality rate (comparable with the parameters ETSJ and ETSA in the absence of a reserve)
+  // instantaneous fishing mortality rate (comparable with the parameters (ETS + ETSJ) and (ETS + ETSA) in the absence of a reserve)
   // and S is the season length.
   // If a fraction c of the season is closed for fishing the probability to escape fishing mortality 
   // throughout the part of the season that fishing is allowed would equal exp(- f1 * (1 - c) * S)  where f1 is the 
@@ -354,13 +354,13 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
         {
           if (!iszero(popIDcard[CONS][i][IDreserve]))
             {
-              popgrad[CONS][i][number] = ETA3;
+              popgrad[CONS][i][number] = (ETA23 + ETA3);
               popgrad[CONS][i][size]   = Q * F3;
               popgrad[CONS][i][age]    = 1.0;
               if (isdead(i)) continue;
               if (ismature(i))
                 {
-                  adults3 += popIDcard[CONS][i][IDnumber];
+                  adults3  += popIDcard[CONS][i][IDnumber];
                   adultws3 += popIDcard[CONS][i][IDsmoltsize] * popIDcard[CONS][i][IDnumber];
                 }
               else
@@ -372,25 +372,25 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
                 {
                   if (ismature(i))
                     {
-                      popgrad[CONS][i][number] = ETA2 + aduharvmort;
+                      popgrad[CONS][i][number] = (ETA23 + ETA2) + aduharvmort;
                       envgrad[9] += aduharvmort * pop[CONS][i][size] * popIDcard[CONS][i][IDnumber];
                     }
                   else
                     {
-                      popgrad[CONS][i][number] = ETA2 + juvharvmort;
+                      popgrad[CONS][i][number] = (ETA23 + ETA2) + juvharvmort;
                       envgrad[8] += juvharvmort * pop[CONS][i][size] * popIDcard[CONS][i][IDnumber];
                     }
                 }
               else
                 {
-                  popgrad[CONS][i][number] = ETA2;
+                  popgrad[CONS][i][number] = (ETA23 + ETA2);
                 }
               popgrad[CONS][i][size] = Q * F2;
               popgrad[CONS][i][age]  = 1.0;
               if (isdead(i)) continue;
               if (ismature(i))
                 {
-                  adults2 += popIDcard[CONS][i][IDnumber];
+                  adults2  += popIDcard[CONS][i][IDnumber];
                   adultws2 += popIDcard[CONS][i][IDsmoltsize] * popIDcard[CONS][i][IDnumber];
                 }
               else
@@ -409,6 +409,7 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
         }
     }
 
+  TotBirthRate = BETA * Q * (F2 * adults2 + F3 * adults3);
   for (i = 0; i < bpoint_no[CONS]; i++)
     {
       // A fraction subcohortfrac[i] of the produced offspring ends up in sub-cohort i
@@ -427,7 +428,7 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
           fracAdultHab *= subcohortfrac[(i % SubCohorts)];
         }
 
-      ofsgrad[CONS][i][number] = -ETA1 * ofs[CONS][i][number] + fracAdultHab * BETA * Q * (F2 * adults2 + F3 * adults3);
+      ofsgrad[CONS][i][number] = -ETA1 * ofs[CONS][i][number] + fracAdultHab * TotBirthRate;
       ofsgrad[CONS][i][age]    = -ETA1 * ofs[CONS][i][age] + ofs[CONS][i][number];
       ofsgrad[CONS][i][size]   = -ETA1 * ofs[CONS][i][size] + F1 * ofs[CONS][i][number];
 
@@ -457,7 +458,7 @@ void    Gradient(double *env, population *pop, population *ofs, double *envgrad,
 
   envgrad[4] = adults2  + adults3;
   envgrad[5] = adultws2 + adultws3;
-  envgrad[6] = BETA * Q * (F2 * adults2  + F3 * adults3);
+  envgrad[6] = TotBirthRate;
   envgrad[7] = BETA * Q * (F2 * adultws2 + F3 * adultws3);
 
   return;
@@ -536,6 +537,13 @@ int    ForceCohortEnd(double *env, population *pop, population *ofs, population 
 #endif
               popIDcard[CONS][i][IDmatured]  = 1.0;
               popIDcard[CONS][i][IDagematur] = pop[CONS][i][age];
+
+              // Force individuals to smolt even if they have not reached the smolting size yet
+              if (!issmolted(i))
+                {
+                  popIDcard[CONS][i][IDsmolted]  = 1.0;
+                  popIDcard[CONS][i][IDagesmolt] = pop[CONS][i][age];
+                }
             }
         }
 
@@ -579,7 +587,7 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
 
 {
   register int i;
-  double       SelDif, meanparsize, meanofssize, newsmoltsize, maxsmoltsize, smoltsizedif;
+  double       SelDif, meanparsize, meanofssize, newsmoltsize, maxsmoltsize, minsmoltsize, smoltsizedif;
 #if (DOWARNINGS == 1)
   char         tmpstr[256];
 #endif
@@ -599,6 +607,13 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
 
           popIDcard[CONS][i][IDmatured]  = 1.0;
           popIDcard[CONS][i][IDagematur] = pop[CONS][i][age];
+
+          // Force individuals to smolt even if they have not reached the smolting size yet
+          if (!issmolted(i))
+            {
+              popIDcard[CONS][i][IDsmolted]  = 1.0;
+              popIDcard[CONS][i][IDagesmolt] = pop[CONS][i][age];
+            }
         }
 
       if ((!issmolted(i)) &&
@@ -615,7 +630,12 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
         }
     }
 
-  if (ADULTFEC)
+  ADULTS     -= 1.0; 
+  ADULTWS    -= 1.0;
+  ADULTFEC   -= 1.0;
+  ADULTFECWS -= 1.0;
+
+  if (ADULTFEC && ADULTS)
     {
       if (!iszero(HERITABILITY))
         {
@@ -627,8 +647,9 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
       else
         newsmoltsize = InitialSmoltSize;
 
-      maxsmoltsize = (1 + GENETICVARIANCE) * newsmoltsize;
-      smoltsizedif = 2 * GENETICVARIANCE * newsmoltsize / SubCohorts;
+      maxsmoltsize = min((1 + GENETICVARIANCE) * newsmoltsize, 0.95);
+      minsmoltsize = max((1 - GENETICVARIANCE) * newsmoltsize, 0.05);
+      smoltsizedif = (maxsmoltsize - minsmoltsize) / SubCohorts;
 
       for (i = 0; i < bpoint_no[CONS]; i++)
         {
@@ -636,7 +657,7 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
           ofsIDcard[CONS][i][IDnbegin]    = ofs[CONS][i][number];
           ofsIDcard[CONS][i][IDmatured]   = 0.0;
           ofsIDcard[CONS][i][IDsmolted]   = 0.0;
-          ofsIDcard[CONS][i][IDsmoltsize] = max(0.0, maxsmoltsize - ((i % SubCohorts) + 0.5) * smoltsizedif);
+          ofsIDcard[CONS][i][IDsmoltsize] = max(0.05, maxsmoltsize - ((i % SubCohorts) + 0.5) * smoltsizedif);
           ofsIDcard[CONS][i][IDagematur]  = 0.0;
           ofsIDcard[CONS][i][IDagesmolt]  = 0.0;
           ofsIDcard[CONS][i][IDreserve]   = (i >= SubCohorts);
@@ -645,6 +666,23 @@ void    InstantDynamics(double *env, population *pop, population *ofs)
 
           ofs[CONS][i][age] += i * 1.0E-5;
           ofs[CONS][i][lnsurvival] = 1.0;
+        }
+    }
+  else  
+    {
+      for (i = 0; i < bpoint_no[CONS]; i++)
+        {
+          ofsIDcard[CONS][i][IDnumber]    = 0.0;
+          ofsIDcard[CONS][i][IDnbegin]    = 0.0;
+          ofsIDcard[CONS][i][IDmatured]   = 0.0;
+          ofsIDcard[CONS][i][IDsmolted]   = 0.0;
+          ofsIDcard[CONS][i][IDsmoltsize] = 0.0;
+          ofsIDcard[CONS][i][IDagematur]  = 0.0;
+          ofsIDcard[CONS][i][IDagesmolt]  = 0.0;
+          ofsIDcard[CONS][i][IDreserve]   = 0.0;
+          ofsIDcard[CONS][i][IDcohortID]  = 0.0;
+          ofs[CONS][i][age]               = 0.0;
+          ofs[CONS][i][lnsurvival]        = 0.0;
         }
     }
 
@@ -763,9 +801,9 @@ void    DefineOutput(double *env, population *pop, double *output)
 
   if (first)
     {
-      output[outnr++] = ETSJ * juveniles2bio;
-      output[outnr++] = ETSA * adults2bio;
-      output[outnr++] = ETSJ * juveniles2bio + ETSA * adults2bio;
+      output[outnr++] = (ETS + ETSJ) * juveniles2bio;
+      output[outnr++] = (ETS + ETSA) * adults2bio;
+      output[outnr++] = (ETS + ETSJ) * juveniles2bio + (ETS + ETSA) * adults2bio;
     }
   else
     {
